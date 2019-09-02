@@ -1,0 +1,11 @@
+[webservers]
+# Add hosts here
+#xxx.xxx.xx.xxx
+3.227.18.74
+
+
+[webservers:vars]
+# Local variables for Ansible playbooks
+ansible_ssh_user=ubuntu
+github_user=faabioms
+app_name=simple-form
