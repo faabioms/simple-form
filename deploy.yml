@@ -5,11 +5,11 @@
 - hosts: webservers
   become: yes
   become_method: sudo
+  environment:
+    LC_ALL: C
   tasks:
   - name: update cache
     apt: name=python-software-properties state=present update_cache=yes cache_valid_time=43200
-  # - name: disable lighttpd
-  #   systemd: name=lighttpd state=stopped enabled=no  # To avoid conflicts with nginx
   - name: install packages
     apt: name={{item}} state=installed
     with_items:
@@ -19,6 +19,9 @@
       - python3-pip
       - python3-dev
       - nginx
+      - awscli
+      - python-virtualenv
+      - libmysqlclient-dev
 
 # Install the app, note: don't do these tasks with become sudo
 - hosts: webservers
@@ -45,7 +48,7 @@
       dest: /etc/systemd/system/{{ app_name }}.service
   - name: start systemd app service
     systemd: name={{ app_name }}.service state=restarted enabled=yes
-  - name: template nginx site config
+  - name: template nginx site config  
     template:
       src: .nginx
       dest: /etc/nginx/sites-available/{{ app_name }}
