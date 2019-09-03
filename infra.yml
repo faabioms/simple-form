@@ -44,19 +44,19 @@
       instance_tags: 
           Name: ansible-ec2
     register: ec2
-  - name: create RDS instance
-    rds:
-      command: create
-      region: "{{ region }}"
-      instance_name: RDS-webserver
-      db_engine: MySQL
-      size: 20
-      instance_type: db.t2.micro
-      username: mysql_admin
-      password: 1nsecure
-      tags:
-        Environment: testing
-        Application: webserver
+  # - name: create RDS instance
+  #   rds:
+  #     command: create
+  #     region: "{{ region }}"
+  #     instance_name: RDS-webserver
+  #     db_engine: MySQL
+  #     size: 20
+  #     instance_type: db.t2.micro
+  #     username: mysql_admin
+  #     password: 1nsecure
+  #     tags:
+  #       Environment: testing
+  #       Application: webserver
   - name: Wait for SSH to come up
     wait_for:
       host: "{{ item.public_ip }}"

@@ -16,7 +16,7 @@ html = """
 <form method='POST' action='/'>
     Name: <input type='text' name='name' required="required"> <br>
     Color: <input type='text' name='color' required="required"> <br>
-    Pet: <select name='pet' required 
+    Pet: <select name='pet' required>
             <option value=""> Select Pet</option>
             <option value="cat">Cat</option>
             <option value="dog">Dog</option>
