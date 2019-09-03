@@ -15,7 +15,6 @@
       - python3-pip
       - python3-dev
       - libmysqlclient-dev
-      - awscli
   - name: dev locale
     become_method: sudo
     action: command sudo update-locale LC_ALL=en_US.UTF-8
@@ -48,13 +47,3 @@
       dest: /etc/systemd/system/{{ app_name }}.service
   - name: start systemd app service
     systemd: name={{ app_name }}.service state=restarted enabled=yes
-
-  - name: Run SQL commands against DB to create table
-    mysql_db:
-      login_host: "{{ rds.instance.endpoint }}"
-      login_password: "{{ DB_PASSWORD }}"
-      login_user: "{{ DB_USER }}"
-      login_port: "{{ DB_PORT }}"
-      name: "{{ DB_NAME }}"
-      state: import
-      target: "basic-db.sql"
