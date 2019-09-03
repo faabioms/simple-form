@@ -16,10 +16,9 @@
       - python3-dev
       - libmysqlclient-dev
   - name: dev locale
-    become_method: sudo
     action: command sudo update-locale LC_ALL=en_US.UTF-8
   - name: set default locale
-    become_method: sudo
+    sudo: yes
     lineinfile: dest=/etc/default/locale
       regexp="LC_ALL"
       line="LC_ALL=\"en_US.UTF-8\""
