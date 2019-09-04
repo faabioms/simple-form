@@ -9,5 +9,5 @@ RDS=$(aws rds --region ${REGION} describe-db-instances --db-instance-identifier 
 echo "stage change RDS"
 sed -i -f "s/##/${RDS}/g" app.py
 
-echo "copy db.yaml"
-scp -i ${pem} -r db.yaml ${user}@"${host}":${project}/
+echo "copy update app.py"
+scp -i ${pem} -r app.py ${user}@"${host}":${project}/app.py
