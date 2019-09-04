@@ -5,9 +5,11 @@
   gather_facts: true
   vars:
     region: us-east-1
+    subnetid: subnet-73365216
+    keypair: mypem
+    ami_image: ami-0cfee17793b08a293
     security_group: default_sg_webserver
-    security_group_rds: default_sg_webserver_rds
-    keypair: amaro-dev
+    security_group_rds: default_sg_webserver_rds    
     db_password: 123123123
     db_user: root
     db_port: 3306
@@ -26,10 +28,6 @@
           from_port: 80
           to_port: 80
           cidr_ip: 0.0.0.0/0
-        - proto: tcp
-          from_port: 443
-          to_port: 443
-          cidr_ip: 0.0.0.0/0
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
@@ -43,22 +41,23 @@
         - proto: tcp
           from_port: 3306
           to_port: 3306
-          cidr_ip: 0.0.0.0/0
+          group_name: "{{ security_group.group_id }}"
+          group_desc: allow MYSQL access from webserver security group
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
     register: security_group_rds
   - name: Launching ec2
     ec2:
-      instance_type: t3.micro
+      instance_type: t2.micro
       key_name: "{{ keypair }}"
-      image: ami-0cfee17793b08a293
+      image: "{{ ami_image }}"
       region: "{{ region }}"
       group_id: "{{ security_group.group_id }}"
       count_tag:
         Name: ansible-ec2
       exact_count: 2
-      vpc_subnet_id: subnet-4a2cc32d
+      vpc_subnet_id: "{{ subnetid }}"
       wait: yes
       assign_public_ip: yes
       instance_tags:
@@ -91,6 +90,12 @@
       login_port: "{{ db_port }}"
       state: import
       target: "basic-db.sql"
+  - local_action:
+      module: rds
+      command: modify
+      instance_name: RDS-webserver
+      region: "{{ region }}"
+      vpc_security_groups: "{{ security_group_rds.group_id }}"
   - name: Wait for SSH to come up
     wait_for:
       host: "{{ item.public_ip }}"
