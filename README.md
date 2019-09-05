@@ -7,7 +7,8 @@
 </h3>
 
 ## Introduction
-
+This simple application should display a form that accepts three fields as input: "Name", "Favorite Color", "Cats or Dog". This form will save the result in a relational database 
+and ensure that "Name" is unique. To achieve this I used Python Flask and MySQL, as well as ansible deploying the entire stack. (infrastructure and application on aws)
 
 ## Prerequisites:
 
@@ -69,7 +70,4 @@ infra.yml: in the vars section, update your region, azones_1a, azones_1c, subnet
 ```
 1. run the command './get_rds_endpoint.sh'
    PS: make sure you have the access_key & secret_key configured on ~/.aws/credentials.
-2. if the ec2 still OutOfService inside the elb, just restart the service and then you ready to access from the elb DNS name 
 ```
-
-## Final Considerations
