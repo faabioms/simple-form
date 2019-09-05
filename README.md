@@ -4,9 +4,8 @@
 
 
 
-## Terraform
+## Prerequisites:
 
-Prerequisites:
 ```
  - a default vpc (inform vpc_id and subnet_id)
  - access_key & secret_key (admin)
@@ -15,11 +14,16 @@ Prerequisites:
  - create ~/.boto file
 ```
 
-## Example .boto
+## Example files
 
 ```
 # Example ~/.boto file
 [Credentials]
+aws_access_key_id = foo
+aws_secret_access_key = bar
+
+Example ~/.aws/credentials file
+[default]
 aws_access_key_id = foo
 aws_secret_access_key = bar
 ```
@@ -28,25 +32,32 @@ aws_secret_access_key = bar
 
 [Installation Guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
+## First Steps
+```
+In order to run the playbook you need to replace certain files
+**.hosts:** change ansible_ssh_private_key_file to your dir+pem file
+**get_rds_endpoint.sh:** change the variable PEM to your dir+pem file
+**get_rds_endpoint.sh:** change the variable REGION of your choice
+**infra.yml:** in the vars section, update your region, azones_1a, azones_1c, subnetid, keypair variables
+```
+
 ## Deploy Infrastructure 
 ```
-before running:
-- add mysql port to default sg to your IpAddress (in order to deploy the databases)
-ansible-playbook infra.yml
+1. run the command 'ansible-playbook infra.yml'
+   **PS: it is possible to have a failing in the security_group_RDS creation, run the 1 step again.**
+2. add the two instances public ip in .hosts files under #xxx.xxx.xx.xxx 
 ```
 
 ## Deploy Application
 ```
-before running:
-- add the two instances public ip in .hosts files under #xxx.xxx.xx.xxx 
-ansible-playbook deploy.yml
+1.  run the commmand 'ansible-playbook deploy.yml'
 ```
 
 ## Get RDS endpoint and replace into webservers
 
 ```
-./get_rds_endpoint.sh
+1. run the command './get_rds_endpoint.sh'
+   **PS: make sure you have the access_key & secret_key configure on ~/.aws/credentials.**
 ```
-
 
 ## Final Considerations

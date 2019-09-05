@@ -5,6 +5,8 @@
   gather_facts: true
   vars:
     region: us-east-1
+    azones_1a: us-east-1a
+    azones_1c: us-east-1c
     subnetid: subnet-73365216
     keypair: mypem
     ami_image: ami-0cfee17793b08a293
@@ -14,6 +16,11 @@
     db_user: root
     db_port: 3306
   tasks:
+  - name: Get my current IP address
+    uri:
+      url: http://checkip.amazonaws.com/
+      return_content: yes
+    register: my_ip
   - name: Create a security group
     ec2_group:
       name: "{{ security_group }}"
@@ -39,14 +46,31 @@
       region: "{{ region }}"
       rules:
         - proto: tcp
-          from_port: 3306
-          to_port: 3306
+          from_port: "{{ db_port }}"
+          to_port: "{{ db_port }}"
           group_name: "{{ security_group.group_id }}"
           group_desc: allow MYSQL access from webserver security group
+        - proto: tcp
+          from_port: "{{ db_port }}"
+          to_port: "{{ db_port }}"
+          cidr_ip: "{{ my_ip.content | replace('\n', '') }}/32"
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
     register: security_group_rds
+  - name: Create the ELB only listening over port 80
+    ec2_elb_lb:
+      name: "ansible-ec2-load-balancer"
+      state: present
+      region: us-east-1
+      zones:
+        - "{{ azones_1a }}"
+        - "{{ azones_1c }}"
+      listeners:
+        - protocol: http
+          load_balancer_port: 80
+          instance_port: 80
+    register: elb
   - name: Launching ec2
     ec2:
       instance_type: t2.micro
@@ -67,6 +91,7 @@
     rds:
       command: create
       region: "{{ region }}"
+      vpc_security_groups: "{{ security_group_rds.group_id }}"
       instance_name: RDS-webserver
       db_engine: MySQL
       size: 10
@@ -76,7 +101,6 @@
       username: "{{ db_user }}"
       password: "{{ db_password }}"
       tags:
-        Environment: testing
         Application: webserver
     register: rds
   - debug:
@@ -90,12 +114,7 @@
       login_port: "{{ db_port }}"
       state: import
       target: "basic-db.sql"
-  - local_action:
-      module: rds
-      command: modify
-      instance_name: RDS-webserver
-      region: "{{ region }}"
-      vpc_security_groups: "{{ security_group_rds.group_id }}"
+    ignore_errors: yes
   - name: Wait for SSH to come up
     wait_for:
       host: "{{ item.public_ip }}"
@@ -106,4 +125,19 @@
     add_host:
       name: "{{ item.public_ip }}"
       groups: webservers
-    with_items: "{{ ec2.instances }}"
+    with_items: "{{ ec2.tagged_instances }}"
+  - name: Add EC2 instances as known hosts
+    known_hosts:
+      name: "{{ item.public_ip }}"
+      key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.public_ip) }}"
+    with_items: "{{ ec2.tagged_instances }}"
+  - name: Add each EC2 instance to the ELB
+    ec2_elb:
+      state: present
+      ec2_elbs: ansible-ec2-load-balancer
+      region: "{{ item.region }}"
+      instance_id: "{{ item.id }}"
+    with_items: "{{ ec2.tagged_instances }}"
+    ignore_errors: yes
+  - name: debug
+    debug: msg="{{ elb }}"
