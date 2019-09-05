@@ -1,6 +1,6 @@
 # Simple Form
 
-## Appearance
+## Architecture
 
 <h3 align="center">
   <img src="assets/simple-form_architecture.png" alt="Simple Form Architecture" />
