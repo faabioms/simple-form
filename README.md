@@ -10,18 +10,19 @@
 This simple application should display a form that accepts three fields as input: "Name", "Favorite Color", "Cats or Dog". This form will save the result in a relational database 
 and ensure that "Name" is unique. To achieve this I used Python Flask and MySQL, as well as ansible deploying the entire stack. (infrastructure and application on aws)
 
-## Prerequisites:
+## Dependencies:
 
 ```
- - inform default vpc (inform vpc_id, subnet_id and az)
- - access_key & secret_key (admin)
- - inform aws region
- - an existing .pem key
- - move .pem key to ~/.ssh (ansible default)
- - chmod 400 .pem key
- - create ~/.boto file
- - configure aws credentials
- - ansible used v2.8.4
+- local python-pip, awscli and ansible installation
+- inform default vpc (inform vpc_id, subnet_id and az)
+- access_key & secret_key (admin)
+- inform aws region
+- an existing .pem key
+- move .pem key to ~/.ssh (ansible default)
+- chmod 400 .pem key
+- create ~/.boto file
+- configure aws credentials
+- ansible version 2.8.4 deployed
 ```
 
 ## Example files
