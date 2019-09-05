@@ -7,7 +7,7 @@
     region: us-east-1
     azones_1a: us-east-1a
     azones_1c: us-east-1c
-    subnets: subnet-ade13ff4
+    subnets: subnet-24f6df43
     keypair: mypem
     ami_image: ami-0cfee17793b08a293
     security_group: default_sg_webserver
